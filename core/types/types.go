@@ -4,7 +4,8 @@ import "time"
 
 type Employee struct {
 	Id    int
-	Shift []int // список квантов времени, когда сотрудник доступен
+	Start time.Time
+	End   time.Time
 }
 
 type Brigade struct {
@@ -24,8 +25,4 @@ type Plane struct {
 	Name    string
 	Jobs    []*Job
 	Arrival time.Time
-}
-
-type Day struct {
-	Quants [24 * 60 / 5]struct{} // 24 * (60/5) - пятиминутные кванты времени
 }
