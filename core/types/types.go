@@ -9,6 +9,7 @@ type Employee struct {
 }
 
 type Brigade struct {
+	Id   int
 	Name string
 	Team []*Employee
 }
