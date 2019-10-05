@@ -27,3 +27,8 @@ type Plane struct {
 	Jobs    []*Job
 	Arrival time.Time
 }
+
+type Schedule struct {
+	List map[*Plane]map[*Job]Employee //
+	//	Table map[Employee]map[time.Time]*Job // расписание с точки зреня сотрудников
+}
