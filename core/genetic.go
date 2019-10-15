@@ -15,13 +15,9 @@ import (
 // }
 
 type Schedule struct {
-	List  [24 * 60 / 5]map[*types.Employee]*types.Job // ключи в этом массиве есть порядковый номер 5-минутного кванта времени
-	List2 map[*types.Employee]map[int]*types.Job      // ключи в этом map[int] массиве есть порядковый номер 5-минутного кванта времени
-	jobs2 map[*types.Job]int                          // значение тут есть порядковый номер 5-минутного кванта
-
 	jobs     []*types.Job
 	planes   []*types.Plane
-	brigades []*types.Brigade
+	brigades map[int]*types.Brigade
 }
 
 func algorithm(planes []*types.Plane, jobs []*types.Job, brigades []*types.Brigade) *Schedule {
@@ -33,7 +29,7 @@ func algorithm(planes []*types.Plane, jobs []*types.Job, brigades []*types.Briga
 type ScheduleFactory struct {
 	jobs     []*types.Job
 	planes   []*types.Plane
-	brigades []*types.Brigade
+	brigades map[int]*types.Brigade
 }
 
 func (sf *ScheduleFactory) Create() ga.Individual {
@@ -50,19 +46,22 @@ func (sf *ScheduleFactory) Create() ga.Individual {
 		jobs:     sf.jobs,
 		planes:   sf.planes,
 		brigades: sf.brigades,
-		// 	List  [24 * 60 / 5]map[*types.Employee]*types.Job // ключи в этом массиве есть порядковый номер 5-минутного кванта времени
-		// List2 map[*types.Employee]map[int]*types.Job      // ключи в этом map[int] массиве есть порядковый номер 5-минутного кванта времени
-		// jobs2 map[*types.Job]int  // значение тут есть порядковый номер 5-минутного кванта
 	}
 
 	for _, plane := range sf.planes {
 		for _, job := range plane.Jobs {
-			schedule.jobs2[job] = plane.Arrival2
+			acceptedStart := plane.Arrival2 // время, с которого задача может быть взята в работу, но может быть взята и позже
+
+			empl, err := schedule.brigades[job.Brigade.Id].FindEmployee(job, &acceptedStart)
+			if err != nil {
+				panic("!")
+			}
+
+			if empl != nil {
+				empl.AcceptJob(job, acceptedStart)
+			}
+
 		}
-	}
-
-	for j, quant := range schedule.jobs2 {
-
 	}
 
 	return schedule
@@ -73,6 +72,8 @@ func (s *Schedule) Clone() ga.Individual {
 }
 
 func (s *Schedule) Crossover(p ga.Individual) ga.Individual {
+	// оставить на месте те работы, которые выполняют в одно и тоже время
+	// (определить только кто именно их выполняет, но на самом деле это не важно ибо все сотрудники одинаковы)
 	return s
 }
 

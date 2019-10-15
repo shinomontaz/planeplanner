@@ -28,10 +28,6 @@ func main() {
 		brigades = append(brigades, brigade)
 	}
 
-	for i := 0; i < numBrigades; i++ {
-		brigades = append(brigades, NewBrigade(i, maxTeam))
-	}
-
 	for i := 0; i < numPlanes; i++ {
 		planes = append(planes, NewRandomPlane(currentDay, jobs))
 	}

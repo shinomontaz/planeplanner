@@ -32,7 +32,7 @@ func NewRandomJobs(max int, bg *types.Brigade) []*types.Job {
 			Id:      bg.Id + i + 1,
 			Brigade: bg,
 			Time:    3000 + rand.Intn(9000),
-			Count:   rand.Intn(len(bg.Team)),
+			Count:   1, //rand.Intn(len(bg.Team)),
 		})
 	}
 
@@ -48,6 +48,9 @@ func NewRandomJobs(max int, bg *types.Brigade) []*types.Job {
 	return list
 }
 
+// NewBrigade
+// id - ID of a new brigade to create\
+// maxTeam - maximum number of employees in brigade each with it's own shift schedule\
 func NewBrigade(id int, maxTeam int) *types.Brigade {
 	brigadeLen := 1 + rand.Intn(maxTeam-1)
 	team := make([]*types.Employee, 0)
@@ -56,11 +59,13 @@ func NewBrigade(id int, maxTeam int) *types.Brigade {
 		team = append(team, NewEmployee(id*100+i))
 	}
 
-	return &types.Brigade{
+	b := &types.Brigade{
 		Id:   id,
 		Name: fmt.Sprintf("%d:%d", id, rand.Int()),
 		Team: team,
 	}
+
+	return b
 }
 
 func NewEmployee(id int) *types.Employee {
@@ -71,9 +76,19 @@ func NewEmployee(id int) *types.Employee {
 		jobEnd = 24 * 2
 	}
 
-	return &types.Employee{
+	startQuant := jobStart * 6 // в одном получасе 6 пятиминуток
+	endQuant := jobEnd * 6
+
+	e := &types.Employee{
 		Id:    id,
 		Start: time.Unix(int64(jobStart*30*60), 0), // начало работы с шагом по полчаса
 		End:   time.Unix(int64(jobEnd*30*60), 0),
+		List:  make(map[int]*types.Job, endQuant-startQuant),
 	}
+
+	for i := startQuant; i <= endQuant; i++ {
+		e.List[i] = nil
+	}
+
+	return e
 }
