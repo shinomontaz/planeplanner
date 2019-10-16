@@ -48,7 +48,7 @@ func (sf *ScheduleFactory) Create() ga.Individual {
 		brigades: sf.brigades,
 	}
 
-	for _, plane := range sf.planes {
+	for _, plane := range schedule.planes {
 		for _, job := range plane.Jobs {
 			acceptedStart := plane.Arrival2 // время, с которого задача может быть взята в работу, но может быть взята и позже
 
@@ -86,5 +86,19 @@ func (s *Schedule) Fitness() float64 {
 }
 
 func (s *Schedule) Mutate() ga.Individual {
+	clone := s.Clone().(*Schedule)
+	for _, plane := range clone.planes {
+		for _, job := range plane.Jobs {
+			acceptedStart := plane.Arrival2 // время, с которого задача может быть взята в работу, но может быть взята и позже
+
+			empl, err := clone.brigades[job.Brigade.Id].FindEmployee(job, &acceptedStart)
+
+			if empl != nil {
+				empl.AcceptJob(job, acceptedStart)
+			}
+
+		}
+	}
+
 	return s
 }
